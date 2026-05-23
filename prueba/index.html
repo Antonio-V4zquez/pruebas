@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabor a México | Comida y Bebidas Típicas</title>
+    <style>
+        /* --- VARIABLES DE COLOR (Temática Mexicana Modernizada) --- */
+        :root {
+            --verde-mex: #075E3D;
+            --blanco-mex: #F4F6F0;
+            --rojo-mex: #CE1126;
+            --oro-mex: #F1A80A;
+            --oscuro: #1A1A1A;
+            --gris-claro: #EFEFEF;
+        }
+
+        /* --- ESTILOS GENERALES --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--blanco-mex);
+            color: var(--oscuro);
+        }
+
+        /* --- HEADER Y NAVBAR --- */
+        header {
+            background: linear-gradient(135deg, var(--verde-mex) 30%, #043e28 100%);
+            color: white;
+            padding: 2rem 1rem;
+            text-align: center;
+            border-bottom: 8px solid var(--oro-mex);
+            position: relative;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+
+        header h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            letter-spacing: 1px;
+        }
+
+        header p {
+            font-style: italic;
+            color: var(--oro-mex);
+            font-size: 1.2rem;
+        }
+
+        /* --- CONTROLES DE FILTRO (JS) --- */
+        .filtros-container {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 2.5rem auto;
+            flex-wrap: wrap;
+            padding: 0 1rem;
+        }
+
+        .btn-filtro {
+            background-color: white;
+            color: var(--verde-mex);
+            border: 2px solid var(--verde-mex);
+            padding: 0.6rem 1.5rem;
+            font-size: 1rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .btn-filtro:hover, .btn-filtro.activo {
+            background-color: var(--verde-mex);
+            color: white;
+            box-shadow: 0 4px 10px rgba(7, 94, 61, 0.3);
+        }
+
+        .btn-filtro[data-categoria="bebida"] {
+            border-color: var(--rojo-mex);
+            color: var(--rojo-mex);
+        }
+
+        .btn-filtro[data-categoria="bebida"]:hover, .btn-filtro[data-categoria="bebida"].activo {
+            background-color: var(--rojo-mex);
+            color: white;
+            box-shadow: 0 4px 10px rgba(206, 17, 38, 0.3);
+        }
+
+        .btn-filtro[data-categoria="todos"].activo {
+            background-color: var(--oro-mex);
+            border-color: var(--oro-mex);
+            color: var(--oscuro);
+        }
+
+        /* --- GRID DE MENÚ --- */
+        .menu-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            padding: 0 2rem 4rem 2rem;
+        }
+
+        /* --- TARJETAS (CARDS) --- */
+        .card {
+            background-color: white;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            border-top: 5px solid var(--oro-mex);
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+
+        /* Marcador de categoría visual */
+        .card.comida { border-top-color: var(--verde-mex); }
+        .card.bebida { border-top-color: var(--rojo-mex); }
+
+        .card-img-placeholder {
+            height: 200px;
+            background: linear-gradient(45deg, #e0e0e0, #f5f5f5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            position: relative;
+        }
+
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 0.4rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            color: white;
+            text-transform: uppercase;
+        }
+
+        .comida .badge { background-color: var(--verde-mex); }
+        .bebida .badge { background-color: var(--rojo-mex); }
+
+        .card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+        }
+
+        .card-title {
+            font-size: 1.4rem;
+            margin-bottom: 0.5rem;
+            color: var(--oscuro);
+        }
+
+        .card-text {
+            font-size: 0.95rem;
+            color: #666;
+            line-height: 1.5;
+            flex-grow: 1;
+        }
+
+        .card-origen {
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: var(--oro-mex);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* --- FOOTER --- */
+        footer {
+            background-color: var(--oscuro);
+            color: var(--blanco-mex);
+            text-align: center;
+            padding: 2rem 1rem;
+            border-top: 5px solid var(--rojo-mex);
+            font-size: 0.9rem;
+        }
+
+        footer span {
+            color: var(--rojo-mex);
+        }
+
+        /* Animación para el filtrado */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .card.mostrar {
+            display: flex;
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .card.ocultar {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Encabezado de la página -->
+    <header>
+        <h1>Sabor Tradicional</h1>
+        <p>Un viaje gastronómico por los rincones de México</p>
+    </header>
+
+    <!-- Barra de Filtros interactiva con JavaScript -->
+    <div class="filtros-container">
+        <button class="btn-filtro activo" data-categoria="todos">Todo el Menú</button>
+        <button class="btn-filtro" data-categoria="comida">Platillos Típicos</button>
+        <button class="btn-filtro" data-categoria="bebida">Bebidas Tradicionales</button>
+    </div>
+
+    <!-- Contenedor del Menú Dinámico -->
+    <main class="menu-container" id="menuGrid">
+        <!-- Los elementos se renderizan aquí mediante JavaScript, facilitando el mantenimiento -->
+    </main>
+
+    <!-- Pie de página -->
+    <footer>
+        <p>Desarrollado con <span>❤</span> para la Gastronomía Mexicana &copy; 2026</p>
+    </footer>
+
+    <!-- --- JAVASCRIPT PARA INTERACTIVIDAD Y DATOS --- -->
+    <script>
+        // Arreglo de objetos con los datos de las comidas y bebidas
+        const menuDatos = [
+            {
+                id: 1,
+                nombre: "Tacos al Pastor",
+                categoria: "comida",
+                descripcion: "Deliciosas tortillas de maíz rellenas de carne de cerdo marinada en achiote y especias, cocinada lentamente en un trompo, servidas con piña, cilantro y cebolla.",
+                origen: "Ciudad de México / Puebla",
+                emoji: "🌮"
+            },
+            {
+                id: 2,
+                nombre: "Mole Poblano",
+                categoria: "comida",
+                descripcion: "Una sofisticada y espesa salsa que combina una gran variedad de chiles, especias, semillas y chocolate artesanal, servida tradicionalmente sobre piezas de pollo.",
+                origen: "Puebla",
+                emoji: "🍗"
+            },
+            {
+                id: 3,
+                nombre: "Pozole Rojo",
+                categoria: "comida",
+                descripcion: "Caldo tradicional a base de granos de maíz cacahuazintle cocido, sazonado con chiles secos y carne de cerdo o pollo. Se acompaña con lechuga, rábanos y tostadas.",
+                origen: "Guerrero / Jalisco",
+                emoji: "🥣"
+            },
+            {
+                id: 4,
+                nombre: "Tequila Tradicional",
+                categoria: "bebida",
+                descripcion: "La bebida espirituosa mexicana más famosa del mundo, destilada a partir del jugo fermentado extraído del corazón del agave azul.",
+                origen: "Jalisco",
+                emoji: "🥃"
+            },
+            {
+                id: 5,
+                nombre: "Agua de Horchata",
+                categoria: "bebida",
+                descripcion: "Refrescante agua helada preparada a base de arroz molido, canela, vainilla y leche. El balance perfecto para acompañar cualquier platillo picante.",
+                origen: "Sureste Mexicano",
+                emoji: "🥛"
+            },
+            {
+                id: 6,
+                nombre: "Mezcal Artesanal",
+                categoria: "bebida",
+                descripcion: "Destilado ancestral obtenido del cocimiento en hornos de piedra de diferentes variedades de agave maguey, lo que le otorga su característico sabor ahumado.",
+                origen: "Oaxaca",
+                emoji: "🌵"
+            }
+        ];
+
+        const menuGrid = document.getElementById('menuGrid');
+        const botonesFiltro = document.querySelectorAll('.btn-filtro');
+
+        // Función para renderizar las tarjetas en el HTML
+        function cargarMenu() {
+            menuGrid.innerHTML = menuDatos.map(item => `
+                <div class="card ${item.categoria} mostrar" data-tipo="${item.categoria}">
+                    <div class="card-img-placeholder">
+                        ${item.emoji}
+                        <span class="badge">${item.categoria}</span>
+                    </div>
+                    <div class="card-body">
+                        <h2 class="card-title">${item.nombre}</h2>
+                        <p class="card-text">${item.descripcion}</p>
+                        <p class="card-origen">📍 Origen: ${item.origen}</p>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Función para filtrar los elementos mediante clases CSS de animación
+        function filtrar(categoriaSeleccionada) {
+            const tarjetas = document.querySelectorAll('.card');
+            
+            tarjetas.forEach(tarjeta => {
+                const tipoTarjeta = tarjeta.getAttribute('data-tipo');
+                
+                if (categoriaSeleccionada === 'todos' || tipoTarjeta === categoriaSeleccionada) {
+                    tarjeta.classList.remove('ocultar');
+                    tarjeta.classList.add('mostrar');
+                } else {
+                    tarjeta.classList.remove('mostrar');
+                    tarjeta.classList.add('ocultar');
+                }
+            });
+        }
+
+        // Event Listeners para los botones de filtrado
+        botonesFiltro.forEach(boton => {
+            boton.addEventListener('click', (e) => {
+                // Cambiar clase activa en los botones
+                botonesFiltro.forEach(b => b.classList.remove('activo'));
+                e.target.classList.add('activo');
+                
+                // Ejecutar filtro gastronómico
+                const categoria = e.target.getAttribute('data-categoria');
+                filtrar(categoria);
+            });
+        });
+
+        // Inicializar la aplicación al cargar la página
+        window.addEventListener('DOMContentLoaded', cargarMenu);
+    </script>
+</body>
+</html>
